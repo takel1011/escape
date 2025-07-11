@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FPS Escape Game</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+        #message {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            display: none;
+            text-shadow: 2px 2px 4px #000000;
+        }
+        #fade-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0;
+            pointer-events: none; /* Allows clicks to go through */
+            z-index: 99;
+        }
+        #success-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            color: black;
+            font-size: 48px;
+            font-family: Arial, sans-serif;
+            z-index: 100;
+        }
+        #key-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 64px; /* Adjust as needed */
+            height: 64px; /* Adjust as needed */
+            display: none;
+            z-index: 50;
+        }
+        #joystick-area {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 150px;
+            height: 150px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 60;
+        }
+        #joystick-handle {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+        }
+        #look-area {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            /* background-color: rgba(255, 0, 0, 0.1); */ /* For debugging */
+            z-index: 60;
+        }
+    </style>
+</head>
+<body>
+    <div id="message"></div>
+    <div id="fade-overlay"></div>
+    <div id="success-screen"><div>You Escaped!</div></div>
+    <img id="key-icon" src="img/鍵アイコン14.png" alt="Key Icon">
+    <img id="magnifying-glass-icon" src="img/虫眼鏡の無料アイコン8.png" alt="Magnifying Glass Icon" style="position: absolute; top: 20px; right: 100px; width: 64px; height: 64px; display: none; z-index: 50;" onclick="toggleMagnifyingGlass();">
+    <div id="joystick-area"><div id="joystick-handle"></div></div>
+    <div id="look-area"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
