@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>おみせやさん物語</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+<style>
+/* Layout: one phone-width column, like standing behind the counter. Noren (indigo curtain) + paper lantern yellow. */
+:root {
+  --bg: #e9eef3;
+  --surface: #ffffff;
+  --surface-2: #f4f6f9;
+  --ink: #1b2440;
+  --muted: #5a647d;
+  --line: #d3dae4;
+  --ai: #24386b;          /* noren indigo */
+  --on-ai: #f7f4ea;
+  --lantern: #f4b400;     /* lantern yellow, the one accent */
+  --on-lantern: #1b2440;
+  --wall: #f6f1e6;
+  --floor: #dcccb2;
+  --wood: #b98552;
+  --wood-dark: #7d5631;
+  --good: #23824a;
+  --good-bg: #e2f4e8;
+  --bad: #be3b26;
+  --bad-bg: #fbe6e1;
+  --meh: #8a6a00;
+  --meh-bg: #fdf2cc;
+  --shadow: 0 2px 0 rgba(27,36,64,.12);
+  --f-display: "Dela Gothic One", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --f-body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11172a; --surface: #1a2239; --surface-2: #222b45; --ink: #e9edf6; --muted: #9ca6c0; --line: #2e3858;
+    --ai: #34509a; --on-ai: #f7f4ea; --lantern: #ffc62e; --on-lantern: #1b2440;
+    --wall: #2a2f45; --floor: #3a3428; --wood: #8f6438; --wood-dark: #5a3d22;
+    --good: #5fcf8a; --good-bg: #183a28; --bad: #ff8670; --bad-bg: #42201b; --meh: #f2cf5b; --meh-bg: #3a3218;
+    --shadow: 0 2px 0 rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11172a; --surface: #1a2239; --surface-2: #222b45; --ink: #e9edf6; --muted: #9ca6c0; --line: #2e3858;
+  --ai: #34509a; --on-ai: #f7f4ea; --lantern: #ffc62e; --on-lantern: #1b2440;
+  --wall: #2a2f45; --floor: #3a3428; --wood: #8f6438; --wood-dark: #5a3d22;
+  --good: #5fcf8a; --good-bg: #183a28; --bad: #ff8670; --bad-bg: #42201b; --meh: #f2cf5b; --meh-bg: #3a3218;
+  --shadow: 0 2px 0 rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-weight: 500; font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 12px 32px;
+}
+#app { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; margin: 0; text-wrap: balance; line-height: 1.3; }
+h1 { font-size: 30px; }
+h2 { font-size: 21px; }
+h3 { font-size: 16px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.num { font-variant-numeric: tabular-nums; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--lantern); outline-offset: 2px; }
+button:disabled { cursor: not-allowed; opacity: .45; }
+
+.btn {
+  border: 2px solid var(--ink); background: var(--surface); border-radius: 12px;
+  padding: 10px 16px; font-weight: 700; box-shadow: 0 3px 0 var(--ink);
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.btn.primary { background: var(--lantern); color: var(--on-lantern); border-color: var(--ink); }
+.btn.big { font-size: 18px; padding: 14px 18px; width: 100%; }
+.btn.ghost { box-shadow: none; border-color: var(--line); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+
+/* ---------- title ---------- */
+.title-hero { padding: 28px 0 8px; display: flex; flex-direction: column; gap: 14px; }
+.title-noren { display: flex; gap: 4px; }
+.title-noren span {
+  flex: 1; background: var(--ai); color: var(--on-ai); font-family: var(--f-display);
+  font-size: clamp(26px, 9vw, 46px); text-align: center; padding: 18px 0 26px; border-radius: 0 0 6px 6px;
+}
+.lead { font-size: 16px; }
+.howto { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.howto div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.howto b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 15px; }
+.howto p { font-size: 13px; color: var(--muted); }
+@media (max-width: 420px) { .howto { grid-template-columns: 1fr; } }
+
+/* ---------- choice cards ---------- */
+.choices { display: grid; gap: 10px; }
+.choice {
+  text-align: left; background: var(--surface); border: 2px solid var(--line); border-radius: 14px;
+  padding: 14px; display: grid; grid-template-columns: 52px minmax(0,1fr); gap: 4px 12px; align-items: start;
+}
+.choice:hover { border-color: var(--ai); }
+.choice.sel { border-color: var(--ai); box-shadow: inset 0 0 0 2px var(--ai); }
+.choice .ico { font-size: 38px; line-height: 1; grid-row: span 3; }
+.choice .nm { font-family: var(--f-display); font-size: 18px; }
+.choice .meta { font-size: 13px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 12px; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); white-space: nowrap; }
+.stepper { font-size: 12px; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+.name-input {
+  width: 100%; font: inherit; font-size: 20px; font-family: var(--f-display); padding: 12px 14px;
+  border: 2px solid var(--ink); border-radius: 12px; background: var(--surface); color: var(--ink);
+}
+
+/* ---------- status bar ---------- */
+.status {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--ai); color: var(--on-ai);
+  border-radius: 12px; padding: 8px 12px; display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.status .day { font-family: var(--f-display); font-size: 15px; line-height: 1.2; }
+.status .day small { display: block; font-family: var(--f-body); font-size: 11px; opacity: .85; }
+.status .clock { font-family: var(--f-display); font-size: 20px; text-align: center; font-variant-numeric: tabular-nums; }
+.status .money { text-align: right; line-height: 1.25; }
+.status .money b { font-family: var(--f-display); font-weight: 400; font-size: 17px; font-variant-numeric: tabular-nums; }
+.status .stars { font-size: 12px; color: var(--lantern); letter-spacing: 1px; }
+
+/* ---------- the shop scene ---------- */
+.scene { position: relative; height: 210px; border-radius: 14px; overflow: hidden; background: var(--wall); border: 2px solid var(--ink); }
+.scene .noren { position: absolute; inset: 0 0 auto; display: flex; gap: 3px; padding: 0 10px; z-index: 2; }
+.scene .noren span {
+  flex: 1; background: var(--ai); color: var(--on-ai); font-family: var(--f-display); text-align: center;
+  font-size: 15px; padding: 6px 0 10px; border-radius: 0 0 5px 5px; transform-origin: top center; animation: sway 5s ease-in-out infinite;
+}
+.scene .noren span:nth-child(2n) { animation-delay: -1.3s; }
+@keyframes sway { 0%,100% { transform: skewX(0deg); } 50% { transform: skewX(-2deg); } }
+.scene .floor { position: absolute; inset: auto 0 0; height: 70px; background: var(--floor); border-top: 2px solid var(--wood-dark); }
+.scene .counter { position: absolute; left: 0; bottom: 0; width: 34%; height: 92px; background: var(--wood); border-top: 6px solid var(--wood-dark); border-right: 2px solid var(--wood-dark); z-index: 3; }
+.scene .counter .owner { position: absolute; top: -46px; left: 18px; font-size: 40px; }
+.scene .counter .goods { position: absolute; top: 8px; left: 10px; right: 6px; font-size: 18px; letter-spacing: 2px; overflow: hidden; white-space: nowrap; }
+.scene .door { position: absolute; right: 10px; bottom: 70px; width: 56px; height: 96px; border: 3px solid var(--wood-dark); border-bottom: 0; background: var(--surface-2); border-radius: 4px 4px 0 0; }
+.scene .poster { position: absolute; left: 40%; top: 50px; font-size: 11px; background: var(--surface); border: 1px solid var(--line); padding: 2px 6px; border-radius: 4px; transform: rotate(-3deg); color: var(--muted); }
+.crowd { position: absolute; bottom: 30px; left: 38%; right: 70px; height: 80px; z-index: 4; }
+.crowd .walker { position: absolute; bottom: 0; display: flex; align-items: flex-end; animation: wander var(--dur, 6s) ease-in-out infinite alternate; }
+.crowd .walker .p { font-size: 40px; line-height: 1; }
+.crowd .walker .held { font-size: 18px; margin-left: -6px; }
+.crowd.enter .walker { animation: enter .9s ease-out both, wander var(--dur, 6s) .9s ease-in-out infinite alternate; }
+@keyframes enter { from { transform: translateX(160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes wander { from { transform: translateX(0); } to { transform: translateX(var(--dx, 30px)); } }
+.crowd.leave .walker { animation: leave 1s ease-in forwards; }
+@keyframes leave { to { transform: translateX(220px); opacity: 0; } }
+.bubble {
+  position: absolute; z-index: 6; top: 46px; right: 74px; max-width: 58%;
+  background: var(--surface); color: var(--ink); border: 2px solid var(--ink); border-radius: 14px; padding: 6px 10px;
+  font-weight: 700; font-size: 14px; animation: pop .35s ease-out both;
+}
+.bubble::after { content: ""; position: absolute; bottom: -9px; left: 26px; border: 8px solid transparent; border-top-color: var(--ink); border-bottom: 0; }
+.bubble.good { background: var(--good-bg); }
+.bubble.bad { background: var(--bad-bg); }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.float-money { position: absolute; z-index: 7; left: 6%; top: 96px; font-family: var(--f-display); font-size: 24px; color: var(--good); animation: rise 1.6s ease-out forwards; text-shadow: 0 2px 0 var(--surface); }
+@keyframes rise { from { transform: translateY(20px); opacity: 0; } 20% { opacity: 1; } to { transform: translateY(-30px); opacity: 0; } }
+.listen { position: absolute; z-index: 6; right: 74px; bottom: 6px; font-size: 12px; font-weight: 700; background: var(--surface); border: 1px solid var(--ink); border-radius: 99px; padding: 2px 10px; }
+
+/* ---------- clue card ---------- */
+.clues { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+.clue { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; min-width: 0; animation: fadein .4s both; }
+.clue .k { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: .06em; }
+.clue .v { font-weight: 700; }
+.clue.wide { grid-column: 1 / -1; }
+.clue.say { background: var(--surface-2); border-style: dashed; border-color: var(--muted); }
+.clue.say .v { font-size: 16px; }
+@keyframes fadein { from { opacity: .2; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.coach { background: var(--meh-bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+.coach b { font-family: var(--f-display); font-weight: 400; }
+.regular-card { background: var(--good-bg); border-radius: 12px; padding: 8px 12px; font-size: 14px; }
+
+/* ---------- menu ---------- */
+.menu { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+.item {
+  text-align: left; background: var(--surface); border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px;
+  display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 0 8px; align-items: center; min-width: 0;
+}
+.item .ic { font-size: 28px; grid-row: span 2; text-align: center; }
+.item .nm { font-weight: 900; font-size: 14px; line-height: 1.3; }
+.item .fit { font-size: 12px; letter-spacing: 1px; line-height: 1.4; word-break: break-all; }
+.item.sel { border-color: var(--ai); box-shadow: inset 0 0 0 2px var(--ai); background: var(--surface-2); }
+@media (max-width: 380px) { .menu { grid-template-columns: 1fr; } }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; color: var(--muted); }
+
+/* ---------- price tag ---------- */
+.tag {
+  position: relative; background: var(--surface); border: 2px solid var(--ink); border-radius: 16px 16px 16px 16px;
+  padding: 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.tag::before { content: ""; position: absolute; top: 12px; left: 12px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--ink); background: var(--bg); }
+.tag .head { padding-left: 20px; display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.price-row { display: grid; grid-template-columns: 52px minmax(0,1fr) 52px; gap: 8px; align-items: center; }
+.price-row .btn { padding: 8px 0; font-size: 22px; }
+.price { text-align: center; font-family: var(--f-display); font-size: 36px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.price small { display: block; font-family: var(--f-body); font-size: 12px; color: var(--muted); font-weight: 700; }
+.calc { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; text-align: center; font-size: 12px; }
+.calc div { background: var(--surface-2); border-radius: 10px; padding: 6px 4px; }
+.calc b { display: block; font-size: 15px; font-variant-numeric: tabular-nums; }
+.calc .pos { color: var(--good); }
+.calc .neg { color: var(--bad); }
+.quick { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; }
+.quick button { border: 1px solid var(--line); background: var(--surface-2); border-radius: 99px; padding: 6px 0; font-size: 13px; font-weight: 700; }
+
+/* ---------- result ---------- */
+.result { border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; border: 2px solid var(--ink); }
+.result.good { background: var(--good-bg); }
+.result.meh { background: var(--meh-bg); }
+.result.bad { background: var(--bad-bg); }
+.result .t { font-family: var(--f-display); font-size: 20px; }
+.why { font-size: 14px; }
+.needchip { display: inline-block; background: var(--surface); border: 1px solid var(--ink); border-radius: 99px; padding: 0 8px; margin: 0 2px; font-weight: 700; font-size: 13px; }
+
+/* ---------- report ---------- */
+.ledger { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.ledger td { padding: 7px 2px; border-bottom: 1px dashed var(--line); }
+.ledger td:last-child { text-align: right; font-weight: 700; }
+.ledger tr.total td { border-bottom: 0; border-top: 2px solid var(--ink); font-family: var(--f-display); font-weight: 400; font-size: 18px; }
+.ledger .neg { color: var(--bad); }
+.ledger .pos { color: var(--good); }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+.kpis div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px; text-align: center; }
+.kpis b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 22px; font-variant-numeric: tabular-nums; }
+.kpis span { font-size: 12px; color: var(--muted); }
+.memo { background: var(--surface); border-left: 6px solid var(--lantern); border-radius: 0 12px 12px 0; padding: 10px 14px; }
+.memo h3 { margin-bottom: 4px; }
+.memo ul { margin: 0; padding-left: 1.2em; }
+.memo li + li { margin-top: 4px; }
+
+/* ---------- grow ---------- */
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 6px; }
+.tabs button { border: 2px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 4px; font-weight: 900; font-size: 14px; }
+.tabs button.on { background: var(--ai); color: var(--on-ai); border-color: var(--ai); }
+.shelf { display: flex; flex-direction: column; gap: 8px; }
+.dev { display: grid; grid-template-columns: 40px minmax(0,1fr) auto; gap: 4px 10px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+.dev .ic { font-size: 30px; text-align: center; }
+.dev .nm { font-weight: 900; }
+.dev .sub { font-size: 12px; color: var(--muted); }
+.dev .btn { padding: 8px 10px; font-size: 13px; white-space: nowrap; }
+.ladder { display: flex; flex-direction: column; gap: 6px; }
+.rung { display: grid; grid-template-columns: 28px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); }
+.rung .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--ink); display: grid; place-items: center; font-size: 12px; font-weight: 900; }
+.rung.done .dot { background: var(--ai); color: var(--on-ai); border-color: var(--ai); }
+.rung.now { border: 2px solid var(--ai); }
+.rung .nm { font-weight: 900; }
+.rung .sub { font-size: 12px; color: var(--muted); }
+
+.win { text-align: center; padding: 24px 8px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.win .big { font-size: 64px; }
+.confirm { background: var(--bad-bg); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ================= DATA ================= */
+const NEEDS = {
+  tired:     { i: "⚡", l: "元気が出る" },
+  quick:     { i: "⏱", l: "すぐできる" },
+  cheap:     { i: "🪙", l: "お手ごろ" },
+  celebrate: { i: "🎉", l: "特別な日" },
+  kids:      { i: "🧸", l: "子ども向け" },
+  healthy:   { i: "🌿", l: "からだにやさしい" },
+  share:     { i: "👥", l: "みんなで" },
+  trendy:    { i: "✨", l: "映える" },
+};
+
+const SHOPS = {
+  ramen: {
+    name: "ラーメン屋", icon: "🍜", unit: "杯", hours: [11, 24], scale: 1, traffic: 1, costGuide: 30,
+    defaultName: "麺処 ひだまり", goods: "🍜🥟🍥🍜🥢",
+    desc: "夜おそくまで営業。疲れた人やおなかペコペコの学生がやってくる。",
+    products: [
+      { id: "shoyu", n: "醤油ラーメン", i: "🍜", cost: 220, base: 750, fit: { quick: 2, cheap: 2, tired: 1 }, start: true },
+      { id: "miso", n: "味噌ラーメン", i: "🍜", cost: 260, base: 850, fit: { tired: 2, kids: 1 }, start: true },
+      { id: "shio", n: "塩ラーメン", i: "🍜", cost: 240, base: 800, fit: { healthy: 2, quick: 1 }, start: true },
+      { id: "don", n: "まかない丼", i: "🍚", cost: 150, base: 480, fit: { quick: 3, cheap: 3 }, dev: 3500 },
+      { id: "kids", n: "お子さまラーメン", i: "🐥", cost: 150, base: 500, fit: { kids: 3, cheap: 1 }, dev: 3000 },
+      { id: "gyoza", n: "大皿ぎょうざ", i: "🥟", cost: 450, base: 1600, fit: { share: 3, cheap: 1 }, share: true, dev: 4000 },
+      { id: "tonkotsu", n: "にんにく豚骨", i: "🧄", cost: 330, base: 1000, fit: { tired: 3 }, dev: 4000 },
+      { id: "tanmen", n: "野菜タンメン", i: "🥬", cost: 280, base: 900, fit: { healthy: 3, tired: 1 }, dev: 4000 },
+      { id: "tokusei", n: "特製全部のせ", i: "👑", cost: 550, base: 1600, fit: { celebrate: 3, tired: 2 }, dev: 6000 },
+      { id: "rainbow", n: "映えレインボー麺", i: "🌈", cost: 400, base: 1300, fit: { trendy: 3, celebrate: 1 }, dev: 6000 },
+    ],
+  },
+  salon: {
+    name: "美容院", icon: "✂️", unit: "人", hours: [9, 20], scale: 3, traffic: 0.65, costGuide: 15,
+    defaultName: "HAIR こもれび", goods: "✂️🪮💈🧴🪞",
+    desc: "1人あたりの値段が高い。そのぶん家賃も高め。記念日やおしゃれ好きが狙い目。",
+    products: [
+      { id: "cut", n: "カット", i: "✂️", cost: 400, base: 3500, fit: { trendy: 1, cheap: 1, quick: 1 }, start: true },
+      { id: "quick", n: "10分クイックカット", i: "⏱", cost: 200, base: 1500, fit: { quick: 3, cheap: 2 }, start: true },
+      { id: "shampoo", n: "シャンプー＆ブロー", i: "🫧", cost: 300, base: 2500, fit: { tired: 2, quick: 1 }, start: true },
+      { id: "gakuwari", n: "学割カット", i: "🎓", cost: 300, base: 2200, fit: { cheap: 3, share: 1 }, dev: 9000 },
+      { id: "kids", n: "キッズカット", i: "🧒", cost: 250, base: 1800, fit: { kids: 3, cheap: 1 }, dev: 9000 },
+      { id: "spa", n: "ヘッドスパ", i: "💆", cost: 600, base: 4500, fit: { tired: 3, healthy: 2 }, dev: 12000 },
+      { id: "osoroi", n: "おそろいヘア", i: "👯", cost: 500, base: 3000, fit: { share: 3, trendy: 2 }, dev: 12000 },
+      { id: "color", n: "トレンドカラー", i: "🎨", cost: 1500, base: 7500, fit: { trendy: 3 }, dev: 15000 },
+      { id: "treat", n: "髪質改善トリートメント", i: "🌿", cost: 1200, base: 6500, fit: { healthy: 3, trendy: 1 }, dev: 15000 },
+      { id: "arrange", n: "記念日ヘアセット", i: "💐", cost: 900, base: 6500, fit: { celebrate: 3, trendy: 1 }, dev: 18000 },
+    ],
+  },
+  cake: {
+    name: "ケーキ屋", icon: "🍰", unit: "個", hours: [10, 20], scale: 0.6, traffic: 1.1, costGuide: 30,
+    defaultName: "パティスリー 森のこみち", goods: "🍰🎂🍮🍓🍪",
+    desc: "1個の値段は安いけど、お客さんが多い。お祝いとおみやげの日はかきいれ時。",
+    products: [
+      { id: "short", n: "ショートケーキ", i: "🍰", cost: 150, base: 480, fit: { kids: 2, celebrate: 1 }, start: true },
+      { id: "choux", n: "シュークリーム", i: "🥯", cost: 60, base: 220, fit: { cheap: 3, quick: 2 }, start: true },
+      { id: "choco", n: "濃厚チョコケーキ", i: "🍫", cost: 160, base: 520, fit: { tired: 3 }, start: true },
+      { id: "pudding", n: "どうぶつプリン", i: "🍮", cost: 80, base: 320, fit: { kids: 3, cheap: 1, trendy: 1 }, dev: 2000 },
+      { id: "soy", n: "豆乳ロール", i: "🥛", cost: 110, base: 400, fit: { healthy: 2, quick: 1, cheap: 1 }, dev: 2000 },
+      { id: "assort", n: "焼き菓子アソート", i: "🍪", cost: 500, base: 2000, fit: { share: 3, quick: 1 }, share: true, dev: 2000 },
+      { id: "lowcarb", n: "低糖質チーズケーキ", i: "🧀", cost: 180, base: 560, fit: { healthy: 3 }, dev: 2500 },
+      { id: "tart", n: "宝石フルーツタルト", i: "🍓", cost: 230, base: 680, fit: { trendy: 3, celebrate: 1 }, dev: 3000 },
+      { id: "whole", n: "ホールケーキ", i: "🎂", cost: 900, base: 3600, fit: { celebrate: 3, share: 3 }, share: true, dev: 3000 },
+    ],
+  },
+};
+
+const LOCS = {
+  station: { name: "駅前", icon: "🚉", rent: 3500, traffic: 7, budget: 1.15, regular: 0.25,
+    desc: "人通りが多く、お金に余裕のあるお客さんも多い。でも家賃が高い。常連にはなりにくい。" },
+  residential: { name: "住宅街", icon: "🏘️", rent: 1500, traffic: 5, budget: 1.0, regular: 0.5,
+    desc: "家賃が安い。人は少なめだけど、気に入ってくれたらまた来てくれる。" },
+  student: { name: "学生街", icon: "🏫", rent: 2200, traffic: 6, budget: 0.9, regular: 0.35,
+    desc: "にぎやかで若いお客さんがいっぱい。ただしお財布はさみしめ。" },
+};
+
+const STAGES = [
+  { name: "屋台", icon: "🛺", cost: 0, rentMul: 0.4, traffic: 0, staffMax: 0, branches: 0, budget: 0.9, desc: "小さな屋台からスタート。" },
+  { name: "小さなお店", icon: "🏠", cost: 15000, rentMul: 1, traffic: 1, staffMax: 1, branches: 0, budget: 1.0, desc: "お客さんが増え、アルバイトを1人雇える。" },
+  { name: "人気のお店", icon: "🏪", cost: 40000, rentMul: 1.6, traffic: 2, staffMax: 2, branches: 0, budget: 1.1, desc: "店がりっぱになり、少し高くても買ってもらえる。" },
+  { name: "2号店オープン", icon: "🏬", cost: 80000, rentMul: 2, traffic: 2, staffMax: 3, branches: 1, budget: 1.15, desc: "となり町に2号店。毎日の利益がプラスされる。" },
+  { name: "チェーン店", icon: "🏙️", cost: 160000, rentMul: 2.5, traffic: 3, staffMax: 4, branches: 4, budget: 1.2, desc: "街じゅうにあなたのお店！ ゴール！" },
+];
+
+// customer types: clues point toward needs
+const ARCH = {
+  overtime: { n: "残業帰りの会社員", needs: ["tired", "quick"], budget: 1.05, hours: [18, 24], size: [1, 1],
+    av: [["🧑‍💼"]], look: ["スーツ・ネクタイをゆるめている"], items: ["💼 ビジネスバッグ"],
+    say: ["はぁ…疲れた", "明日も朝早いんだよな…", "今日もこんな時間か…"], w: [3, 1, 1] },
+  lunch: { n: "昼休みの会社員", needs: ["quick", "cheap"], budget: 0.95, hours: [11, 14], size: [1, 1],
+    av: [["👩‍💼"], ["🧑‍💼"]], look: ["スーツ・首から社員証"], items: ["⌚ 腕時計を何度も見ている", "📱 スマホで予定を確認"],
+    say: ["昼休みあと30分しかない…", "午後イチで会議なんだよな", "給料日前だしなぁ"], w: [3, 0.5, 1] },
+  students: { n: "大学生グループ", needs: ["cheap", "share"], budget: 0.8, hours: [12, 22], size: [3, 4],
+    av: [["🧑‍🎓", "👦", "👧", "🧑"]], look: ["パーカーにジーンズ"], items: ["🎒 リュック", "📚 分厚い教科書"],
+    say: ["今月ピンチなんだよね〜", "みんなで分けようぜ！", "バイト代まだ入ってないんだよ…"], w: [0.8, 0.5, 4] },
+  club: { n: "部活帰りの高校生", needs: ["tired", "cheap"], budget: 0.85, hours: [16, 21], size: [2, 3],
+    av: [["🧑", "👦", "🧒"]], look: ["ジャージ姿・汗だく"], items: ["🏀 ボール", "👟 スポーツバッグ"],
+    say: ["練習きつかった〜", "もうヘトヘト…", "おこづかい残りちょっとなんだよね"], w: [0.8, 1, 3] },
+  family: { n: "家族連れ", needs: ["kids", "share"], budget: 1.0, hours: [10, 20], size: [3, 4],
+    av: [["👨", "👩", "🧒", "👧"]], look: ["動きやすいカジュアル"], items: ["🧸 ぬいぐるみ", "🎈 風船"],
+    say: ["ママ〜、ぼくのは？", "子どもが喜ぶのがいいな", "みんなで分けられるといいね"], w: [0.8, 4, 1] },
+  couple: { n: "記念日のカップル", needs: ["celebrate", "trendy"], budget: 1.4, hours: [17, 23], size: [2, 2],
+    av: [["🧑", "👩"]], look: ["いつもよりおしゃれ"], items: ["💐 花束", "🎁 プレゼントの紙袋"],
+    say: ["今日でちょうど1年だね", "今日は特別な日だから", "写真撮っておこうよ"], w: [2.5, 1, 1] },
+  yoga: { n: "ヨガ帰りの人", needs: ["healthy"], budget: 1.15, hours: [9, 17], size: [1, 1],
+    av: [["👩"]], look: ["スポーツウェア"], items: ["🧘 ヨガマット", "🥤 マイ水筒"],
+    say: ["最近ちょっと体型が気になって…", "体にいいものがいいな", "ヨガのあとって気持ちいいね"], w: [1, 3, 0.8] },
+  jk: { n: "女子高生", needs: ["trendy", "cheap"], budget: 0.85, hours: [15, 20], size: [2, 3],
+    av: [["👧", "👧", "👧"]], look: ["制服"], items: ["📱 スマホを構えている", "🎀 キラキラのキーホルダー"],
+    say: ["これ映えるかな？", "SNSにあげたい！", "おこづかい足りるかな…"], w: [1, 1, 3] },
+  elderly: { n: "近所のおじいちゃん・おばあちゃん", needs: ["healthy", "cheap"], budget: 1.0, hours: [9, 16], size: [1, 2],
+    av: [["👴", "👵"]], look: ["カーディガン"], items: ["🦯 杖", "🛍️ 商店街の買い物袋"],
+    say: ["あっさりしたのがいいねぇ", "最近、胃がもたれてねぇ", "年金暮らしだからねぇ"], w: [0.6, 4, 0.5] },
+  tourist: { n: "観光客", needs: ["trendy", "celebrate"], budget: 1.45, hours: [10, 19], size: [2, 2],
+    av: [["🧑", "👱‍♀️"]], look: ["旅行っぽい服に帽子"], items: ["🧳 スーツケース", "📷 大きなカメラ"],
+    say: ["せっかくの旅行だし！", "ここでしか味わえないものある？", "旅の思い出にしたいな"], w: [3.5, 0.3, 0.8] },
+  mama: { n: "赤ちゃん連れのママ", needs: ["quick", "kids"], budget: 1.0, hours: [9, 16], size: [2, 2], payers: 1,
+    av: [["👩", "👶"]], look: ["ゆったりした服"], items: ["👶 ベビーカー", "🍼 ほにゅうびん"],
+    say: ["この子が寝てるうちに…", "お迎えまであと少し", "この子も一緒で大丈夫かな？"], w: [0.6, 3, 0.5] },
+  nurse: { n: "夜勤明けの看護師", needs: ["tired", "healthy"], budget: 1.05, hours: [9, 13], size: [1, 1],
+    av: [["🧑‍⚕️"]], look: ["白いスニーカー・目の下にクマ"], items: ["👜 大きなトートバッグ", "🪪 病院の名札"],
+    say: ["夜勤明けでヘトヘト…", "体にやさしいのがいいな", "帰ったらすぐ寝たい…"], w: [1.5, 1.5, 0.5] },
+  party: { n: "お祝い中の会社員グループ", needs: ["celebrate", "share"], budget: 1.25, hours: [18, 24], size: [4, 4],
+    av: [["🧑‍💼", "👩‍💼", "👨‍💼", "🧑‍💼"]], look: ["スーツ・みんな笑顔"], items: ["🎊 寄せ書きの色紙", "🍾 紙袋"],
+    say: ["プロジェクト成功、おつかれ！", "今日はパーッといこう！", "みんなで乾杯しよう"], w: [3, 0.3, 1] },
+};
+const LOC_IDX = { station: 0, residential: 1, student: 2 };
+const SURNAMES = ["サトウ", "スズキ", "タカハシ", "タナカ", "ワタナベ", "イトウ", "ヤマモト", "ナカムラ", "コバヤシ", "カトウ", "ヨシダ", "ヤマダ", "ササキ", "マツモト", "イノウエ", "キムラ", "ハヤシ", "シミズ", "モリ", "イケダ"];
+
+/* ================= HELPERS ================= */
+const $ = (s) => document.querySelector(s);
+const rnd = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(rnd(a, b + 1));
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const yen = (n) => (n < 0 ? "−¥" : "¥") + Math.abs(Math.round(n)).toLocaleString("ja-JP");
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function wpick(items, weights) {
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < items.length; i++) { r -= weights[i]; if (r <= 0) return items[i]; }
+  return items[items.length - 1];
+}
+const stars = (rep) => { const f = clamp(Math.round(rep), 0, 5); return "★".repeat(f) + "☆".repeat(5 - f); };
+const fitIcons = (fit) => Object.entries(fit).filter(([, v]) => v > 0).map(([k, v]) => NEEDS[k].i.repeat(v)).join(" ");
+const timeStr = (h, m) => `${String(h % 24).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+const priceStep = (base) => base >= 3000 ? 100 : base >= 1000 ? 50 : 10;
+const roundTo = (v, step) => Math.max(step, Math.round(v / step) * step);
+
+/* ================= STATE ================= */
+const SAVE_KEY = "omise-monogatari-v1";
+let S = null;          // persistent game state
+let ui = { phase: "title" };
+
+function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+function load() { try { const t = localStorage.getItem(SAVE_KEY); return t ? JSON.parse(t) : null; } catch (e) { return null; } }
+function wipe() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+
+const shop = () => SHOPS[S.shop];
+const loc = () => LOCS[S.loc];
+const stage = () => STAGES[S.stage];
+const products = () => shop().products.filter((p) => S.unlocked.includes(p.id));
+const rentToday = () => Math.round(loc().rent * shop().scale * stage().rentMul / 10) * 10;
+const wage = () => Math.round(1500 * shop().scale / 10) * 10;
+
+function newGame(shopKey, locKey, name) {
+  const sh = SHOPS[shopKey];
+  S = {
+    shop: shopKey, loc: locKey, name: name || sh.defaultName,
+    day: 1, money: Math.round(10000 * sh.scale), rep: 1, stage: 0, staff: 0,
+    unlocked: sh.products.filter((p) => p.start).map((p) => p.id),
+    regulars: [], won: false,
+    stats: { served: 0, left: 0, regularsMade: 0, profit: 0 },
+    today: null,
+  };
+  startDay();
+}
+
+/* ================= CUSTOMERS ================= */
+function makeCustomer(archKey, hour, opts = {}) {
+  const a = ARCH[archKey];
+  const size = ri(a.size[0], a.size[1]);
+  const pool = pick(a.av);
+  const mix = ["students", "club", "jk"].includes(archKey);
+  const people = mix ? Array.from({ length: size }, () => pick(pool)) : pool.slice(0, size);
+  while (people.length < size) people.push(pick(pool));
+  const says = [...a.say].sort(() => Math.random() - 0.5);
+  return {
+    arch: archKey, hour, min: ri(0, 5) * 10 + ri(0, 9), size, payers: a.payers || size,
+    people, look: pick(a.look), item: pick(a.items),
+    say1: opts.say1 || says[0], say2: says.find((s) => s !== (opts.say1 || says[0])),
+    regId: opts.regId || null,
+  };
+}
+
+function archWeights(hour) {
+  const li = LOC_IDX[S.loc];
+  const keys = Object.keys(ARCH);
+  const w = keys.map((k) => {
+    const a = ARCH[k];
+    const inHours = hour >= a.hours[0] && hour < a.hours[1];
+    return a.w[li] * (inHours ? 1 : 0.04);
+  });
+  return [keys, w];
+}
+
+function startDay() {
+  const sh = shop(), lc = loc(), st = stage();
+  const n = clamp(Math.round((lc.traffic + st.traffic + S.rep * 0.8) * sh.traffic), 3, 12);
+  const [open, close] = sh.hours;
+  const hours = Array.from({ length: n }, () => ri(open, close - 1)).sort((a, b) => a - b);
+  const list = hours.map((h) => { const [k, w] = archWeights(h); return makeCustomer(wpick(k, w), h); });
+
+  // regulars come back
+  const back = S.regulars.filter(() => Math.random() < lc.regular).slice(0, Math.ceil(n / 2));
+  back.forEach((r) => {
+    const a = ARCH[r.arch];
+    const lo = Math.max(open, a.hours[0]), hi = Math.min(close, a.hours[1]) - 1;
+    const h = hi >= lo ? ri(lo, hi) : ri(open, close - 1);
+    const idx = Math.floor(Math.random() * list.length);
+    list[idx] = makeCustomer(r.arch, h, { regId: r.id });
+  });
+  list.sort((a, b) => a.hour - b.hour || a.min - b.min);
+
+  // tutorial: the very first customer is the tired office worker
+  if (S.day === 1) {
+    const h = clamp(21, open, close - 1);
+    list[list.length - 1] = makeCustomer("overtime", h, { say1: "はぁ…疲れた" });
+    list[list.length - 1].min = 10;
+    const first = list.pop(); list.unshift(first);
+  }
+
+  S.today = {
+    customers: list, idx: 0, hints: 3,
+    log: { sales: 0, cost: 0, happy: 0, left: 0, newRegs: 0, expensive: 0, cheap: 0, mismatch: 0, grudging: 0 },
+  };
+  save();
+  ui = { phase: "serve", sel: null, price: 0, heard: false, hint: false, result: null };
+  render();
+}
+
+/* ================= JUDGEMENT ================= */
+function evaluate(c, p, price) {
+  const a = ARCH[c.arch];
+  const [n1, n2] = a.needs;
+  const fit = Math.min(1, ((p.fit[n1] || 0) + 0.6 * (n2 ? (p.fit[n2] || 0) : 0)) / 3);
+  const reg = c.regId ? S.regulars.find((r) => r.id === c.regId) : null;
+  const budget = a.budget * loc().budget * stage().budget * (reg ? 1.1 : 1);
+  const will = p.base * budget * (0.7 + 0.5 * fit);
+  const qty = p.share ? 1 : c.payers;
+  let kind;
+  if (fit < 0.3) kind = "mismatch";
+  else if (price > will * 1.12) kind = "expensive";
+  else if (price > will) kind = "grudging";
+  else if (fit < 0.6) kind = price < will * 0.72 ? "cheapok" : "ok";
+  else kind = price < will * 0.72 ? "cheapreg" : "regular";
+  return { kind, fit, will: Math.round(will), qty, reg };
+}
+
+const LINES = {
+  mismatch: ["うーん、今はそういう気分じゃないんだ…", "ほしいのと、ちょっとちがうかな…", "また今度にします…"],
+  expensive: ["えっ、高っ…！ やめておきます", "うーん、お財布的にムリかな…", "ちょっと予算オーバーだなぁ"],
+  grudging: ["ちょっと高いけど…まあいいか", "うーん…今日だけね", "高いなぁ。でも食べたいし…"],
+  ok: ["ごちそうさま", "まあまあかな", "ふつうに良かったよ"],
+  cheapok: ["えっ、こんなに安いの？", "安くて助かる〜"],
+  regular: ["これこれ！ また来るね！", "最高！ ぜったいまた来ます！", "わかってるねぇ！ また来るよ"],
+  cheapreg: ["こんなに安くていいの!? また来るね！", "最高で安い！ 毎日来ちゃうかも！"],
+};
+
+function recommend() {
+  const c = S.today.customers[S.today.idx];
+  const p = shop().products.find((x) => x.id === ui.sel);
+  const price = ui.price;
+  const r = evaluate(c, p, price);
+  const L = S.today.log;
+  const buys = !["mismatch", "expensive"].includes(r.kind);
+  let sales = 0, cost = 0, newReg = null, repDelta = 0;
+  if (buys) {
+    sales = price * r.qty; cost = p.cost * r.qty;
+    L.sales += sales; L.cost += cost; S.stats.served++;
+  } else { L.left++; S.stats.left++; }
+  if (r.kind === "mismatch") { L.mismatch++; repDelta = -0.08; }
+  if (r.kind === "expensive") { L.expensive++; repDelta = -0.1; }
+  if (r.kind === "grudging") { L.grudging++; repDelta = 0; }
+  if (r.kind === "ok" || r.kind === "cheapok") { L.happy++; repDelta = 0.03; }
+  if (r.kind === "cheapok" || r.kind === "cheapreg") L.cheap++;
+  if (r.kind === "regular" || r.kind === "cheapreg") {
+    L.happy++; repDelta = 0.12;
+    if (r.reg) { r.reg.visits++; r.reg.fav = p.id; r.reg.last = price; }
+    else {
+      newReg = { id: "r" + Date.now() + ri(0, 999), name: pick(SURNAMES), arch: c.arch, fav: p.id, last: price, visits: 1 };
+      S.regulars.push(newReg); if (S.regulars.length > 30) S.regulars.shift();
+      L.newRegs++; S.stats.regularsMade++;
+    }
+  }
+  if (r.reg && !buys) { // a regular who leaves unhappy may not come back
+    if (Math.random() < 0.5) S.regulars = S.regulars.filter((x) => x !== r.reg);
+  }
+  S.money += sales - cost;
+  S.rep = clamp(S.rep + repDelta, 0, 5);
+  ui.result = { ...r, p, price, sales, profit: sales - cost, newReg, line: pick(LINES[r.kind]) };
+  save();
+  render();
+}
+
+function nextCustomer() {
+  S.today.idx++;
+  save();
+  if (S.today.idx >= S.today.customers.length) { closeDay(); return; }
+  ui = { phase: "serve", sel: null, price: 0, heard: false, hint: false, result: null };
+  render();
+}
+
+/* ================= END OF DAY ================= */
+function closeDay() {
+  const L = S.today.log, sh = shop(), st = stage();
+  const avgMargin = products().reduce((s, p) => s + (p.base * st.budget - p.cost), 0) / products().length;
+  const staffCustomers = S.staff * (2 + Math.floor(S.rep / 1.5));
+  const staffProfit = Math.round(staffCustomers * avgMargin * 1.6 * 0.7 / 10) * 10;
+  const wages = S.staff * wage();
+  const branch = Math.round(st.branches * 5000 * sh.scale * (0.5 + S.rep / 5) / 10) * 10;
+  const rent = rentToday();
+  const profit = L.sales - L.cost - rent - wages + staffProfit + branch;
+  S.money += -rent - wages + staffProfit + branch;
+  S.stats.profit += profit;
+  ui = { phase: "report", rep: { ...L, rent, wages, staffCustomers, staffProfit, branch, profit } };
+  S.today = null;
+  S.day++;
+  save();
+  render();
+}
+
+function tipsFor(R) {
+  const sh = shop(), tips = [];
+  const ratio = R.sales > 0 ? Math.round(R.cost / R.sales * 100) : 0;
+  if (R.sales > 0) tips.push(`今日の<b>原価率</b>は ${ratio}%（売上のうち、仕入れにかかった割合）。${sh.name}は ${sh.costGuide}% くらいが目安。${ratio > sh.costGuide + 10 ? "値段が安すぎるかも。" : ratio < sh.costGuide - 12 ? "しっかり儲けが出ているね。" : "いい感じ！"}`);
+  if (R.expensive >= 2) tips.push(`値段が高すぎて帰った人が ${R.expensive}人。学生や子どもはお財布が小さく、観光客や記念日の人は大きい。お客さんを見て値段を変えよう。`);
+  if (R.cheap >= 2) tips.push(`「安い！」と驚かれたのが ${R.cheap}回。喜ばれるけど、<b>売値 − 仕入れ値 = 儲け</b>。もう少し上げても買ってくれたかも。`);
+  if (R.mismatch >= 2) tips.push(`ほしいものとちがって帰った人が ${R.mismatch}人。合う商品がないなら、「お店を育てる」で新しい商品をつくろう。`);
+  if (R.newRegs > 0) tips.push(`新しい常連さんが ${R.newRegs}人！ 常連さんはまた来てくれて、少し高くても買ってくれる。お店の評判も上がるよ。`);
+  if (R.profit < 0) tips.push(`今日は赤字…。家賃（${yen(R.rent)}）は、お客さんが来なくても毎日かかる。家賃の高い場所ほど、たくさん売る必要がある。`);
+  if (R.staffCustomers > 0) tips.push(`スタッフが ${R.staffCustomers}人を接客してくれた。お給料（${yen(R.wages)}）より稼いでくれれば、雇った意味がある。`);
+  if (tips.length < 3) {
+    const extra = [
+      `場所選びは「家賃」と「来るお客さん」のバランス。${loc().name}は ${loc().desc.split("。")[0]}。`,
+      "1回きりのお客さんより、何度も来てくれる常連さんがお店をささえる。",
+      "評判の★が上がると、お客さんが増える。いい接客がいちばんの宣伝。",
+      "グループ客は人数分買ってくれるから、1組で大きな売上になる。",
+    ];
+    tips.push(extra[S.day % extra.length]);
+  }
+  return tips.slice(0, 3);
+}
+
+/* ================= GROW ================= */
+function develop(id) {
+  const p = shop().products.find((x) => x.id === id);
+  const cost = p.dev;
+  if (S.money < cost || S.unlocked.includes(id)) return;
+  S.money -= cost; S.unlocked.push(id); save(); render();
+}
+function expand() {
+  const next = STAGES[S.stage + 1];
+  if (!next) return;
+  const cost = Math.round(next.cost * shop().scale);
+  if (S.money < cost) return;
+  S.money -= cost; S.stage++;
+  save();
+  if (S.stage === STAGES.length - 1 && !S.won) { S.won = true; save(); ui = { phase: "win" }; }
+  render();
+}
+function hire(delta) {
+  const n = S.staff + delta;
+  if (n < 0 || n > stage().staffMax) return;
+  S.staff = n; save(); render();
+}
+
+/* ================= RENDER ================= */
+function render() {
+  const app = $("#app");
+  const views = { title: vTitle, pickShop: vPickShop, pickLoc: vPickLoc, pickName: vPickName, serve: vServe, report: vReport, grow: vGrow, win: vWin };
+  app.innerHTML = views[ui.phase]();
+  bind();
+  if (ui.phase === "serve") window.scrollTo({ top: 0 });
+}
+
+function statusBar(time) {
+  return `<div class="status">
+    <div class="day">${S.day}日目<small>${stage().icon} ${stage().name}・${loc().name}</small></div>
+    <div class="clock">${time || ""}</div>
+    <div class="money"><b>${yen(S.money)}</b><div class="stars" aria-label="評判 ${S.rep.toFixed(1)}">${stars(S.rep)}</div></div>
+  </div>`;
+}
+
+function vTitle() {
+  const saved = load();
+  return `<div class="title-hero">
+    <div class="title-noren" aria-hidden="true"><span>お</span><span>み</span><span>せ</span><span>や</span><span>さ</span><span>ん</span></div>
+    <h1>おみせやさん物語</h1>
+    <p class="lead">お客さんのようすとつぶやきから「ほしいもの」を読みとって、ぴったりの商品と値段をすすめよう。屋台からはじめて、めざせチェーン店！</p>
+  </div>
+  <div class="howto">
+    <div><b>お店を開く</b><p>ラーメン屋・美容院・ケーキ屋から選んで、駅前・住宅街・学生街に出店。</p></div>
+    <div><b>お客さんを読む</b><p>時間、人数、服装、持ち物、つぶやき。手がかりを組み合わせよう。</p></div>
+    <div><b>すすめて値段を決める</b><p>ぴったりなら「また来るね！」。高すぎたり外したりすると帰っちゃう。</p></div>
+    <div><b>お店を育てる</b><p>儲けで新商品をつくり、人を雇い、お店を広げよう。</p></div>
+  </div>
+  <div class="stack">
+    ${saved ? `<button class="btn primary big" data-act="continue">つづきから（${esc(saved.name)}・${saved.day}日目）</button>` : ""}
+    <button class="btn ${saved ? "" : "primary"} big" data-act="new">${saved ? "はじめから" : "お店をはじめる"}</button>
+    ${ui.confirmNew ? `<div class="confirm"><p>いまのお店のデータは消えます。はじめからにしますか？</p><div class="row"><button class="btn primary" data-act="new-yes">はじめから遊ぶ</button><button class="btn ghost" data-act="new-no">やめる</button></div></div>` : ""}
+  </div>`;
+}
+
+function vPickShop() {
+  return `<p class="stepper">1 / 3　お店えらび</p><h2>どんなお店を開く？</h2>
+  <div class="choices">${Object.entries(SHOPS).map(([k, s]) => `
+    <button class="choice ${ui.shop === k ? "sel" : ""}" data-shop="${k}">
+      <span class="ico">${s.icon}</span><span class="nm">${s.name}</span>
+      <span class="meta">${s.desc}</span>
+      <span class="chips"><span class="chip">営業 ${s.hours[0]}時〜${s.hours[1]}時</span><span class="chip">はじめの商品 ${s.products.filter((p) => p.start).map((p) => p.i).join("")}</span></span>
+    </button>`).join("")}</div>
+  <div class="row"><button class="btn ghost" data-act="to-title">もどる</button></div>`;
+}
+
+function vPickLoc() {
+  const sh = SHOPS[ui.shop];
+  return `<p class="stepper">2 / 3　場所えらび</p><h2>${sh.icon} ${sh.name}をどこに出す？</h2>
+  <div class="choices">${Object.entries(LOCS).map(([k, l]) => {
+    const li = LOC_IDX[k];
+    const top = Object.entries(ARCH).sort((a, b) => b[1].w[li] - a[1].w[li]).slice(0, 3);
+    const rent = Math.round(l.rent * sh.scale * STAGES[0].rentMul / 10) * 10;
+    const purse = l.budget > 1.05 ? "多め" : l.budget < 0.95 ? "少なめ" : "ふつう";
+    return `<button class="choice ${ui.loc === k ? "sel" : ""}" data-loc="${k}">
+      <span class="ico">${l.icon}</span><span class="nm">${l.name}</span>
+      <span class="meta">${l.desc}</span>
+      <span class="chips"><span class="chip">家賃 ${yen(rent)}/日</span><span class="chip">人通り ${"●".repeat(l.traffic - 3)}${"○".repeat(7 - l.traffic)}</span><span class="chip">お財布 ${purse}</span><span class="chip">よく来る：${top.map(([, a]) => a.n).join("・")}</span></span>
+    </button>`;
+  }).join("")}</div>
+  <div class="row"><button class="btn ghost" data-act="to-shop">もどる</button></div>`;
+}
+
+function vPickName() {
+  const sh = SHOPS[ui.shop];
+  return `<p class="stepper">3 / 3　お店の名前</p><h2>お店の名前をつけよう</h2>
+  <p class="muted">のれんに書く名前です。そのままでもOK。</p>
+  <label for="shopname" class="small muted">お店の名前</label>
+  <input id="shopname" class="name-input" maxlength="14" value="${esc(ui.name || sh.defaultName)}">
+  <div class="panel small">${sh.icon} ${sh.name} ／ ${LOCS[ui.loc].icon} ${LOCS[ui.loc].name} ／ 開店資金 ${yen(10000 * sh.scale)}</div>
+  <button class="btn primary big" data-act="open">開店する！</button>
+  <div class="row"><button class="btn ghost" data-act="to-loc">もどる</button></div>`;
+}
+
+function norenText(name) {
+  // one curtain panel per word; long words are cut into pieces of up to 4 characters
+  const out = [];
+  name.trim().split(/[\s　]+/).filter(Boolean).forEach((w) => {
+    const ch = [...w];
+    for (let i = 0; i < ch.length; i += 4) out.push(ch.slice(i, i + 4).join(""));
+  });
+  if (out.length === 1 && [...out[0]].length > 2) { const ch = [...out[0]]; const h = Math.ceil(ch.length / 2); out.splice(0, 1, ch.slice(0, h).join(""), ch.slice(h).join("")); }
+  return out.slice(0, 5).map((t) => `<span>${esc(t)}</span>`).join("");
+}
+
+function vServe() {
+  const T = S.today, c = T.customers[T.idx], a = ARCH[c.arch], r = ui.result;
+  const reg = c.regId ? S.regulars.find((x) => x.id === c.regId) : null;
+  const left = T.customers.length - T.idx;
+  const sel = ui.sel ? shop().products.find((p) => p.id === ui.sel) : null;
+  const crowdCls = r ? (["mismatch", "expensive"].includes(r.kind) ? "leave" : "") : (ui.entered ? "" : "enter");
+  ui.entered = true;
+  const bubbleCls = r ? (["mismatch", "expensive"].includes(r.kind) ? "bad" : ["regular", "cheapreg"].includes(r.kind) ? "good" : "") : "";
+  const bubble = r ? r.line : (ui.heard ? c.say2 : c.say1);
+
+  const walkers = c.people.map((p, i) => {
+    const held = i === 0 ? c.item.split(" ")[0] : "";
+    return `<div class="walker" style="left:${i * 34}px;--dur:${(4 + i * 1.3).toFixed(1)}s;--dx:${20 + i * 6}px"><span class="p">${p}</span>${held ? `<span class="held">${held}</span>` : ""}</div>`;
+  }).join("");
+
+  const scene = `<div class="scene" aria-label="店内のようす">
+    <div class="noren">${norenText(S.name)}</div>
+    <div class="poster">本日も営業中</div>
+    <div class="door"></div>
+    <div class="floor"></div>
+    <div class="counter"><span class="owner">🧑‍🍳</span><span class="goods">${shop().goods}</span></div>
+    <div class="crowd ${crowdCls}">${walkers}</div>
+    <div class="bubble ${bubbleCls}">${esc(bubble)}</div>
+    ${r && r.sales > 0 ? `<div class="float-money">+${yen(r.sales)}</div>` : ""}
+    ${!r && !ui.heard ? `<button class="listen" data-act="listen">👂 耳をすます</button>` : ""}
+  </div>`;
+
+  const coach = S.day === 1 && T.idx === 0 && !r ? `<div class="coach"><b>はじめてのお客さん</b><br>夜9時、スーツで1人、「はぁ…疲れた」。手がかりを組み合わせると…？ 下のメニューのマーク（⚡元気 ⏱すぐ など）を見て、合いそうな商品を選ぼう。</div>` : "";
+
+  const regCard = reg ? `<div class="regular-card">⭐ 常連の<b>${esc(reg.name)}さん</b>（${reg.visits}回目の来店）。前回は「${esc(shop().products.find((p) => p.id === reg.fav).n)}」を ${yen(reg.last)} で気に入ってくれた。</div>` : "";
+
+  const clues = `<div class="clues">
+    <div class="clue"><div class="k">来た時間</div><div class="v num">${timeStr(c.hour, c.min)}</div></div>
+    <div class="clue"><div class="k">人数</div><div class="v">${c.size}人 ${c.people.join("")}</div></div>
+    <div class="clue"><div class="k">服装</div><div class="v">${esc(c.look)}</div></div>
+    <div class="clue"><div class="k">持ち物</div><div class="v">${esc(c.item)}</div></div>
+    <div class="clue wide say"><div class="k">つぶやき</div><div class="v">「${esc(c.say1)}」${ui.heard ? `<br>「${esc(c.say2)}」` : ""}</div></div>
+    ${ui.hint && !r ? `<div class="clue wide"><div class="k">ヒント：ほしいもの</div><div class="v">${a.needs.map((n) => `<span class="needchip">${NEEDS[n].i} ${NEEDS[n].l}</span>`).join(" ")}</div></div>` : ""}
+  </div>`;
+
+  let lower;
+  if (r) {
+    const good = ["regular", "cheapreg"].includes(r.kind), bad = ["mismatch", "expensive"].includes(r.kind);
+    const title = { mismatch: "帰ってしまった…", expensive: "高すぎて帰ってしまった…", grudging: "しぶしぶ買ってくれた", ok: "買ってくれた", cheapok: "安さに喜んでくれた", regular: "大満足！ 常連さんになった", cheapreg: "大満足！ 常連さんになった" }[r.kind];
+    const need = a.needs.map((n) => `<span class="needchip">${NEEDS[n].i} ${NEEDS[n].l}</span>`).join("");
+    const fitWord = r.fit >= 0.9 ? "ぴったり！" : r.fit >= 0.6 ? "よく合っていた" : r.fit >= 0.3 ? "少しだけ合っていた" : "合っていなかった";
+    let why = `この人（${a.n}）がほしかったのは ${need}。「${r.p.n}」は${fitWord}。`;
+    if (r.kind === "expensive" || r.kind === "grudging") why += ` 出してもいい値段は <b>${yen(r.will)}</b> くらいだった。`;
+    if (r.kind === "cheapok" || r.kind === "cheapreg") why += ` 実は <b>${yen(r.will)}</b> くらいまでなら払ってくれたみたい。`;
+    if (r.kind === "ok") why += " もっとぴったりの商品なら、常連になってくれたかも。";
+    if (r.newReg) why += ` <b>${esc(r.newReg.name)}さん</b>として常連リストに入ったよ。`;
+    lower = `<div class="result ${good ? "good" : bad ? "bad" : "meh"}">
+      <div class="t">${title}</div>
+      ${r.sales > 0 ? `<div class="num">売上 ${yen(r.sales)}（${r.qty}${shop().unit}）　儲け <b>${yen(r.profit)}</b></div>` : ""}
+      <p class="why">${why}</p>
+    </div>
+    <button class="btn primary big" data-act="next">${left > 1 ? `次のお客さん（あと${left - 1}組）` : "今日はおしまい。お店を閉める"}</button>`;
+  } else {
+    const menu = products().map((p) => `<button class="item ${ui.sel === p.id ? "sel" : ""}" data-pick="${p.id}" aria-pressed="${ui.sel === p.id}">
+        <span class="ic">${p.i}</span><span class="nm">${p.n}${p.share ? "<small class='muted'>（グループで1つ）</small>" : ""}</span><span class="fit">${fitIcons(p.fit)}</span></button>`).join("");
+    const legend = Object.values(NEEDS).map((n) => `<span>${n.i}${n.l}</span>`).join("");
+    let tag = "";
+    if (sel) {
+      const step = priceStep(sel.base);
+      const qty = sel.share ? 1 : c.payers;
+      const margin = ui.price - sel.cost;
+      tag = `<div class="tag">
+        <div class="head"><h3>${sel.i} ${sel.n}</h3><span class="small muted">相場 ${yen(sel.base)}</span></div>
+        <div class="price-row">
+          <button class="btn" data-act="down" aria-label="値下げ">−</button>
+          <div class="price num" aria-live="polite">${yen(ui.price)}<small>1${shop().unit}の値段</small></div>
+          <button class="btn" data-act="up" aria-label="値上げ">＋</button>
+        </div>
+        <div class="quick">
+          <button data-mul="0.85">少し安く</button><button data-mul="1">相場</button><button data-mul="1.2">少し高く</button>
+        </div>
+        <div class="calc">
+          <div>仕入れ値<b>${yen(sel.cost)}</b></div>
+          <div>1${shop().unit}の儲け<b class="${margin >= 0 ? "pos" : "neg"}">${yen(margin)}</b></div>
+          <div>${qty}${shop().unit}で<b class="${margin >= 0 ? "pos" : "neg"}">${yen(margin * qty)}</b></div>
+        </div>
+        <button class="btn primary big" data-act="recommend">この値段ですすめる</button>
+      </div>`;
+    }
+    lower = `<div class="row" style="justify-content:space-between">
+        <h3>なにをすすめる？</h3>
+        <button class="btn ghost small" data-act="hint" ${T.hints <= 0 || ui.hint ? "disabled" : ""}>💡 ヒント（のこり${T.hints}）</button>
+      </div>
+      <div class="menu">${menu}</div>
+      <div class="legend">${legend}</div>
+      ${tag}`;
+  }
+
+  return `${statusBar(timeStr(c.hour, c.min))}
+    ${scene}
+    ${coach}${regCard}
+    <div class="row small muted" style="justify-content:space-between"><span>お客さん ${T.idx + 1} / ${T.customers.length}組目</span><span>常連さん ${S.regulars.length}人</span></div>
+    ${clues}
+    ${lower}`;
+}
+
+function vReport() {
+  const R = ui.rep;
+  const total = R.happy + R.left + R.grudging;
+  return `${statusBar("閉店")}
+  <h2>${S.day - 1}日目の決算</h2>
+  <div class="kpis">
+    <div><b>${R.happy}/${total}</b><span>満足したお客さん</span></div>
+    <div><b>${R.newRegs}</b><span>新しい常連さん</span></div>
+    <div><b>${stars(S.rep).slice(0, 5)}</b><span>お店の評判</span></div>
+  </div>
+  <div class="panel">
+    <table class="ledger">
+      <tr><td>売上</td><td class="pos">${yen(R.sales)}</td></tr>
+      <tr><td>仕入れ（原価）</td><td class="neg">−${yen(R.cost)}</td></tr>
+      <tr><td>家賃（${stage().name}・${loc().name}）</td><td class="neg">−${yen(R.rent)}</td></tr>
+      ${R.wages ? `<tr><td>お給料（スタッフ${S.staff}人）</td><td class="neg">−${yen(R.wages)}</td></tr>` : ""}
+      ${R.staffProfit ? `<tr><td>スタッフの接客（${R.staffCustomers}組）</td><td class="pos">+${yen(R.staffProfit)}</td></tr>` : ""}
+      ${R.branch ? `<tr><td>支店からの利益</td><td class="pos">+${yen(R.branch)}</td></tr>` : ""}
+      <tr class="total"><td>今日の利益</td><td class="${R.profit >= 0 ? "pos" : "neg"}">${R.profit >= 0 ? "+" : ""}${yen(R.profit)}</td></tr>
+    </table>
+  </div>
+  <div class="memo"><h3>店長メモ</h3><ul>${tipsFor(R).map((t) => `<li>${t}</li>`).join("")}</ul></div>
+  ${S.money < 0 ? `<div class="coach">お金がマイナスです。家賃の安い場所や、儲けの出る値段を考えてみよう。（このまま続けられます）</div>` : ""}
+  <button class="btn primary big" data-act="to-grow">お店を育てる</button>`;
+}
+
+function vGrow() {
+  const tab = ui.tab || "menu";
+  const sh = shop();
+  let body = "";
+  if (tab === "menu") {
+    const locked = sh.products.filter((p) => !S.unlocked.includes(p.id));
+    body = `<p class="small muted">新しい商品があると、いろんなお客さんにぴったりのものをすすめられる。</p>
+    <div class="shelf">${locked.length ? locked.map((p) => `<div class="dev">
+      <span class="ic">${p.i}</span>
+      <div><div class="nm">${p.n}</div><div class="sub">${fitIcons(p.fit)}　相場 ${yen(p.base)}・仕入れ ${yen(p.cost)}${p.share ? "・グループで1つ" : ""}</div></div>
+      <button class="btn" data-dev="${p.id}" ${S.money < p.dev ? "disabled" : ""}>開発 ${yen(p.dev)}</button>
+    </div>`).join("") : `<div class="panel">全部の商品がそろいました！</div>`}</div>
+    <p class="small muted">いまのメニュー：${products().map((p) => p.i + p.n).join("、")}</p>`;
+  } else if (tab === "staff") {
+    const max = stage().staffMax;
+    body = `<p class="small muted">スタッフは、あなたが接客していないお客さんを毎日接客してくれる。評判が上がるほど、たくさん接客してくれる。お給料は毎日かかる。</p>
+    <div class="panel stack">
+      <div class="row" style="justify-content:space-between"><div><b>アルバイト</b><div class="small muted">お給料 ${yen(wage())}/日・1人で ${2 + Math.floor(S.rep / 1.5)}組くらい接客</div></div>
+      <div class="row"><button class="btn" data-act="fire" ${S.staff <= 0 ? "disabled" : ""} aria-label="1人へらす">−</button><b class="num" style="font-size:22px">${S.staff}</b><span class="muted">/ ${max}人</span><button class="btn" data-act="hire" ${S.staff >= max ? "disabled" : ""} aria-label="1人ふやす">＋</button></div></div>
+      <div style="font-size:26px">${"🧑‍🍳".repeat(S.staff) || "<span class='small muted'>まだだれもいません</span>"}</div>
+      ${max === 0 ? `<p class="small">屋台はせまくて人を雇えない。「店を広げる」で小さなお店にしよう。</p>` : ""}
+    </div>`;
+  } else {
+    body = `<p class="small muted">お店を広げると、お客さんが増えて、少し高くても買ってもらえる。でも家賃も上がる。</p>
+    <div class="ladder">${STAGES.map((st, i) => {
+      const cost = Math.round(st.cost * sh.scale);
+      const cls = i < S.stage ? "done" : i === S.stage ? "done now" : "";
+      const rent = Math.round(loc().rent * sh.scale * st.rentMul / 10) * 10;
+      return `<div class="rung ${cls}"><span class="dot">${i < S.stage ? "✓" : i === S.stage ? "●" : i + 1}</span>
+        <div><div class="nm">${st.icon} ${st.name}</div><div class="sub">${st.desc} 家賃 ${yen(rent)}/日</div></div>
+        ${i === S.stage + 1 ? `<button class="btn primary" data-act="expand" ${S.money < cost ? "disabled" : ""}>${yen(cost)}</button>` : i > S.stage ? `<span class="small muted num">${yen(cost)}</span>` : i === S.stage ? `<span class="small">いまここ</span>` : ""}
+      </div>`;
+    }).join("")}</div>`;
+  }
+  return `${statusBar("開店前")}
+  <h2>お店を育てる</h2>
+  <div class="tabs" role="tablist">
+    <button class="${tab === "menu" ? "on" : ""}" data-tab="menu" role="tab" aria-selected="${tab === "menu"}">商品をつくる</button>
+    <button class="${tab === "staff" ? "on" : ""}" data-tab="staff" role="tab" aria-selected="${tab === "staff"}">人を雇う</button>
+    <button class="${tab === "expand" ? "on" : ""}" data-tab="expand" role="tab" aria-selected="${tab === "expand"}">店を広げる</button>
+  </div>
+  ${body}
+  <button class="btn primary big" data-act="next-day">${S.day}日目の営業をはじめる</button>`;
+}
+
+function vWin() {
+  return `${statusBar("🎉")}
+  <div class="win">
+    <div class="big">🏙️</div>
+    <h1>チェーン店になった！</h1>
+    <p>屋台からはじめた「${esc(S.name)}」は、${S.day}日目で街じゅうに広がりました。</p>
+    <div class="kpis" style="width:100%">
+      <div><b>${S.stats.served}</b><span>買ってくれた組</span></div>
+      <div><b>${S.stats.regularsMade}</b><span>できた常連さん</span></div>
+      <div><b>${stars(S.rep)}</b><span>評判</span></div>
+    </div>
+    <p class="muted small">ちがうお店や場所でも遊んでみよう。場所が変わると、来るお客さんも作戦も変わるよ。</p>
+    <button class="btn primary big" data-act="to-grow">このまま続ける</button>
+    <button class="btn big" data-act="to-title">タイトルへ</button>
+  </div>`;
+}
+
+/* ================= EVENTS ================= */
+function bind() {
+  document.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => act(b.dataset.act)));
+  document.querySelectorAll("[data-shop]").forEach((b) => b.addEventListener("click", () => { ui.shop = b.dataset.shop; ui.phase = "pickLoc"; render(); }));
+  document.querySelectorAll("[data-loc]").forEach((b) => b.addEventListener("click", () => { ui.loc = b.dataset.loc; ui.phase = "pickName"; render(); }));
+  document.querySelectorAll("[data-pick]").forEach((b) => b.addEventListener("click", () => {
+    const p = shop().products.find((x) => x.id === b.dataset.pick);
+    ui.sel = p.id; ui.price = p.base; render();
+    const t = document.querySelector(".tag"); if (t) t.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }));
+  document.querySelectorAll("[data-mul]").forEach((b) => b.addEventListener("click", () => {
+    const p = shop().products.find((x) => x.id === ui.sel);
+    ui.price = roundTo(p.base * Number(b.dataset.mul), priceStep(p.base)); render();
+  }));
+  document.querySelectorAll("[data-dev]").forEach((b) => b.addEventListener("click", () => develop(b.dataset.dev)));
+  document.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => { ui.tab = b.dataset.tab; render(); }));
+  const nm = $("#shopname"); if (nm) nm.addEventListener("input", () => { ui.name = nm.value; });
+}
+
+function act(a) {
+  const p = ui.sel ? shop().products.find((x) => x.id === ui.sel) : null;
+  switch (a) {
+    case "new": if (load()) { ui.confirmNew = true; render(); } else { ui = { phase: "pickShop" }; render(); } break;
+    case "new-yes": wipe(); S = null; ui = { phase: "pickShop" }; render(); break;
+    case "new-no": ui.confirmNew = false; render(); break;
+    case "continue": S = load(); if (!S) { ui = { phase: "title" }; render(); break; }
+      if (S.today) { ui = { phase: "serve", sel: null, price: 0, heard: false, hint: false, result: null }; render(); }
+      else { ui = { phase: "grow", tab: "menu" }; render(); }
+      break;
+    case "to-title": ui = { phase: "title" }; render(); break;
+    case "to-shop": ui.phase = "pickShop"; render(); break;
+    case "to-loc": ui.phase = "pickLoc"; render(); break;
+    case "open": newGame(ui.shop, ui.loc, (ui.name || "").trim()); break;
+    case "listen": ui.heard = true; render(); break;
+    case "hint": if (S.today.hints > 0) { S.today.hints--; ui.hint = true; save(); render(); } break;
+    case "up": ui.price += priceStep(p.base); render(); break;
+    case "down": ui.price = Math.max(priceStep(p.base), ui.price - priceStep(p.base)); render(); break;
+    case "recommend": recommend(); break;
+    case "next": nextCustomer(); break;
+    case "to-grow": ui = { phase: "grow", tab: ui.tab || "menu" }; render(); break;
+    case "hire": hire(1); break;
+    case "fire": hire(-1); break;
+    case "expand": expand(); break;
+    case "next-day": startDay(); break;
+  }
+}
+
+render();
+})();
+</script>
+
+</body>
+</html>
