@@ -102,7 +102,9 @@ namespace OmiseYasan
             {
                 float x = 3.2f - total / 2 + w / 2 + i * (w + gap);
                 var panel = Look.Prim(PrimitiveType.Cube, root, new Vector3(x, 2.25f, 4.8f), new Vector3(w, 0.7f, 0.02f), cloth, "Noren");
-                Label3D(panel.transform.parent, parts[i], new Vector3(x, 2.25f, 4.78f), 0.11f / Mathf.Max(1, parts[i].Length * 0.45f), Look.Paper);
+                // 文字が布からはみ出さない大きさにする（1文字の高さ = 布の幅の8割 ÷ 文字数）
+                float charH = Mathf.Min(0.42f, w * 0.8f / Mathf.Max(1, parts[i].Length));
+                Label3D(panel.transform.parent, parts[i], new Vector3(x, 2.25f, 4.78f), charH, Look.Paper);
             }
         }
 
@@ -205,7 +207,7 @@ namespace OmiseYasan
         void Poster(Vector3 p, string text)
         {
             Look.Prim(PrimitiveType.Cube, root, p, new Vector3(0.8f, 0.6f, 0.02f), Look.Mat(Look.Lantern, 0.2f), "Poster");
-            Label3D(root, text, p + new Vector3(0, 0, -0.02f), 0.05f, Look.Ink);
+            Label3D(root, text, p + new Vector3(0, 0, -0.02f), 0.13f, Look.Ink);
         }
 
         void Lamp(Vector3 p)
@@ -221,7 +223,8 @@ namespace OmiseYasan
             lamps.Add(l);
         }
 
-        public static TextMesh Label3D(Transform parent, string text, Vector3 pos, float size, Color color)
+        /// <summary>3D の文字。charHeight は1文字の高さ（メートル）。</summary>
+        public static TextMesh Label3D(Transform parent, string text, Vector3 pos, float charHeight, Color color)
         {
             var go = new GameObject("Label");
             go.transform.SetParent(parent, false);
@@ -231,7 +234,7 @@ namespace OmiseYasan
             tm.anchor = TextAnchor.MiddleCenter;
             tm.alignment = TextAlignment.Center;
             tm.fontSize = 64;
-            tm.characterSize = size;
+            tm.characterSize = charHeight / (tm.fontSize * 0.1f); // TextMesh の1行の高さ ≒ fontSize × characterSize × 0.1
             tm.color = color;
             var font = BuiltinFont();
             if (font != null) { tm.font = font; go.GetComponent<MeshRenderer>().sharedMaterial = font.material; }

@@ -87,7 +87,7 @@ namespace OmiseYasan
         /// <summary>手に持ち物を持たせる（スーツケース・花束など、色だけの仮の形）。</summary>
         public static void Hold(PersonRig rig, string item)
         {
-            if (rig.ArmR == null) return;
+            if (rig.ArmR == null || item.Contains("ベビーカー")) return; // ベビーカーは別の体として出るので手には持たない
             Color c = Look.Hex("#8A6A4A");
             Vector3 size = new Vector3(0.12f, 0.16f, 0.06f);
             if (item.Contains("ビジネスバッグ")) { c = Look.Hex("#2D2A26"); size = new Vector3(0.32f, 0.24f, 0.08f); }
