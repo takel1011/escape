@@ -1,0 +1,15 @@
+# Unity が自動で作るフォルダ（このフォルダで直接プロジェクトを開いた場合）
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+*.csproj
+*.sln
+!Tools/Sim/Sim.csproj
+
+# シミュレーターのビルド結果
+Tools/Sim/bin/
+Tools/Sim/obj/
